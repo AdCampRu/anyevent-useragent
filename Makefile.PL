@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 
 
 WriteMakefile(
-	NAME           => 'AnyEvent::UsrAgent',
+	NAME           => 'AnyEvent::UserAgent',
 	AUTHOR         => 'Denis Ibaev <dionys@cpan.org>',
 	VERSION_FROM   => 'lib/AnyEvent/UserAgent.pm',
 	ABSTRACT_FROM  => 'lib/AnyEvent/UserAgent.pm',
