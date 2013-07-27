@@ -6,10 +6,10 @@ package AnyEvent::UserAgent;
 use Moo;
 
 use AnyEvent::HTTP ();
-use HTTP::Request::Common ();
-use HTTP::Request ();
-use HTTP::Response ();
 use HTTP::Cookies ();
+use HTTP::Request ();
+use HTTP::Request::Common ();
+use HTTP::Response ();
 
 
 our $VERSION = '0.01';
