@@ -65,10 +65,11 @@ sub _response {
 	if (exists($hdrs->{Redirect})) {
 		$prev = _response($req, $jar, @{delete($hdrs->{Redirect})});
 	}
-	if (defined($hdrs->{'set-cookie'})) {
+	if (my $cookies = $hdrs->{'set-cookie'}) {
+		local @_ = split /,(\w+=)/, ',' . $cookies;
+		shift;
 		my @val;
-		my @tmp = split(/,/, $hdrs->{'set-cookie'});
-		push(@val, join(',', shift(@tmp), shift(@tmp))) while @tmp;
+		push @val, join '', shift, shift while @_;
 		$hdrs->{'set-cookie'} = \@val;
 	}
 
