@@ -90,6 +90,7 @@ sub _response {
 		$res->request(&{'HTTP::Request::Common::' . $meth}(delete($hdrs->{URL})));
 	}
 	else {
+		delete($hdrs->{URL});
 		$res->request($req);
 	}
 	$res->header(%$hdrs);
