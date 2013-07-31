@@ -17,7 +17,7 @@ our $VERSION = '0.01';
 
 has timeout => (is => 'rw', default => sub { 30 });
 has agent => (is => 'rw', default => sub { join('/', __PACKAGE__, $VERSION) });
-has cookie_jar => (is => 'rw', default => sub { HTTP::Cookies->new });
+has cookie_jar => (is => 'rw', default => sub { HTTP::Cookies->new(hide_cookie2 => 1) });
 
 
 sub get    { _request(GET    => @_) }
@@ -41,9 +41,12 @@ sub request {
 	$req->headers->user_agent($self->agent);
 	$self->cookie_jar->add_cookie_header($req);
 
+	my $headers = $req->headers;
+	delete $headers->{'::std_case'};
+
 	my %opts = (
 		timeout => $self->timeout,
-		headers => $req->headers,
+		headers => $headers,
 		body    => $req->content,
 	);
 
