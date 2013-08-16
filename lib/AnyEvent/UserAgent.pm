@@ -64,26 +64,13 @@ sub request {
 sub _response {
 	my ($req, $jar, $body, $hdrs) = @_;
 
-	if (!defined($body) && $hdrs->{Status} > 590) {
-		return HTTP::Response->new($hdrs->{Status});
-	}
-
+	my $res = HTTP::Response->new(delete($hdrs->{Status}), delete($hdrs->{Reason}));
 	my $prev;
 
 	if (exists($hdrs->{Redirect})) {
 		$prev = _response($req, $jar, @{delete($hdrs->{Redirect})});
 	}
-	if (my $cookies = $hdrs->{'set-cookie'}) {
-		local @_ = split(/,(\w+=)/, ',' . $cookies);
-		shift();
-		my @val;
-		push(@val, join('', shift(), shift())) while @_;
-		$hdrs->{'set-cookie'} = \@val;
-	}
 
-	my $res = HTTP::Response->new(delete($hdrs->{Status}), delete($hdrs->{Reason}));
-
-	$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
 	if ($prev) {
 		my $meth = $prev->request->method;
 		my $code = $prev->code;
@@ -98,8 +85,22 @@ sub _response {
 		delete($hdrs->{URL});
 		$res->request($req);
 	}
-	$res->header(%$hdrs);
-	$res->content_ref(\$body);
+	if (defined($hdrs->{HTTPVersion})) {
+		$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
+	}
+	if (my $cookies = $hdrs->{'set-cookie'}) {
+		local @_ = split(/,(\w+=)/, ',' . $cookies);
+		shift();
+		my @val;
+		push(@val, join('', shift(), shift())) while @_;
+		$hdrs->{'set-cookie'} = \@val;
+	}
+	if (keys(%$hdrs)) {
+		$res->header(%$hdrs);
+	}
+	if (defined($body)) {
+		$res->content_ref(\$body);
+	}
 
 	$jar->extract_cookies($res);
 
