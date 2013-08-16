@@ -64,6 +64,10 @@ sub request {
 sub _response {
 	my ($req, $jar, $body, $hdrs) = @_;
 
+	if (!defined($body) && $hdrs->{Status} > 590) {
+		return HTTP::Response->new($hdrs->{Status});
+	}
+
 	my $prev;
 
 	if (exists($hdrs->{Redirect})) {
