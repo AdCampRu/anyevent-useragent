@@ -15,8 +15,8 @@ WriteMakefile(
 	META_MERGE     => {
 		resources => {
 			license     => 'http://dev.perl.org/licenses/',
-			repository  => 'http://github.com/dionys/anyevent-useragent',
-			bugtracker  => 'http://github.com/dionys/anyevent-useragent/issues',
+			repository  => 'http://github.com/AdCampRu/anyevent-useragent',
+			bugtracker  => 'http://github.com/AdCampRu/anyevent-useragent/issues',
 		},
 		no_index  => {directory => ['t']},
 	},

@@ -1,0 +1,56 @@
+{
+    "name" : "AnyEvent-UserAgent",
+    "version" : "0.01",
+    "abstract" : "AnyEvent::HTTP OO-wrapper",
+    "author" : [
+        "Denis Ibaev <dionys@cpan.org>"
+    ],
+    "license" : [
+        "perl_5"
+    ],
+    "dynamic_config" : 0,
+    "prereqs" : {
+        "build" : {
+            "requires" : {
+                "Test::More" : "0"
+            }
+        },
+        "configure" : {
+            "requires" : {
+                "ExtUtils::MakeMaker" : "0"
+            }
+        },
+        "runtime" : {
+            "requires" : {
+                "AnyEvent::HTTP" : "0",
+                "HTTP::Cookies" : "0",
+                "HTTP::Message" : "0",
+                "Moo" : "0"
+            }
+        }
+    },
+    "release_status" : "stable",
+    "resources" : {
+        "bugtracker" : {
+            "web" : "http://github.com/AdCampRu/anyevent-useragent/issues"
+        },
+        "license" : [
+            "http://dev.perl.org/licenses/"
+        ],
+        "repository" : {
+            "url" : "http://github.com/AdCampRu/anyevent-useragent"
+        }
+    },
+    "meta-spec" : {
+        "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+        "version" : "2"
+    },
+    "generated_by" : "ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.120921",
+    "no_index" : {
+        "directory" : [
+            "t",
+            "inc",
+            "t"
+        ]
+    }
+}
