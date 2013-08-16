@@ -16,7 +16,7 @@ our $VERSION = '0.01';
 
 
 has timeout => (is => 'rw', default => sub { 30 });
-has agent => (is => 'rw', default => sub { join('/', __PACKAGE__, $VERSION) });
+has agent => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
 has cookie_jar => (is => 'rw', default => sub { HTTP::Cookies->new(hide_cookie2 => 1) });
 
 
