@@ -42,7 +42,8 @@ sub request {
 	$self->cookie_jar->add_cookie_header($req);
 
 	my $headers = $req->headers;
-	delete $headers->{'::std_case'};
+
+	delete($headers->{'::std_case'});
 
 	my %opts = (
 		timeout => $self->timeout,
@@ -69,10 +70,10 @@ sub _response {
 		$prev = _response($req, $jar, @{delete($hdrs->{Redirect})});
 	}
 	if (my $cookies = $hdrs->{'set-cookie'}) {
-		local @_ = split /,(\w+=)/, ',' . $cookies;
-		shift;
+		local @_ = split(/,(\w+=)/, ',' . $cookies);
+		shift();
 		my @val;
-		push @val, join '', shift, shift while @_;
+		push(@val, join('', shift(), shift())) while @_;
 		$hdrs->{'set-cookie'} = \@val;
 	}
 
