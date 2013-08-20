@@ -11,14 +11,15 @@ use HTTP::Request ();
 use HTTP::Request::Common ();
 use HTTP::Response ();
 
+$AnyEvent::HTTP::MAX_RECURSE = 0;
 
 our $VERSION = '0.01';
 
 
-has timeout => (is => 'rw', default => sub { 30 });
-has agent => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
-has cookie_jar => (is => 'rw', default => sub { HTTP::Cookies->new(hide_cookie2 => 1) });
-
+has agent         => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
+has cookie_jar    => (is => 'rw', default => sub { HTTP::Cookies->new });
+has max_redirects => (is => 'rw', default => sub { 5 });
+has timeout       => (is => 'rw', default => sub { 30 });
 
 sub get    { _request(GET    => @_) }
 sub head   { _request(HEAD   => @_) }
@@ -36,6 +37,14 @@ sub _request {
 }
 
 sub request {
+	my ($self, $req, $cb) = @_;
+
+	$self->_req($req, sub {
+		$self->_response($req, @_, $cb);
+		});
+}
+
+sub _req {
 	my ($self, $req, $cb) = @_;
 
 	$req->headers->user_agent($self->agent);
@@ -56,35 +65,34 @@ sub request {
 		$req->uri,
 		%opts,
 		sub {
-			$cb->(_response($req, $self->cookie_jar, @_));
+			$cb->(@_);
 		}
 	);
 }
 
+sub _redirect {
+	my ($self, $req, $prev, $count, $cb) = @_;
+
+	unless ($count) {
+		my $res = HTTP::Response->new(599, 'Too many redirects');
+		$res->previous($prev) if $prev;
+		return $cb->($res);
+	} else {
+		$self->_req($req, sub {
+			$self->_response($req, @_, $prev, $count - 1, sub { return $cb->(@_); });
+		});
+	}
+}
+
 sub _response {
-	my ($req, $jar, $body, $hdrs) = @_;
+	my $cb = pop();
+	my ($self, $req, $body, $hdrs, $prev, $count) = @_;
 
 	my $res = HTTP::Response->new(delete($hdrs->{Status}), delete($hdrs->{Reason}));
-	my $prev;
 
-	if (exists($hdrs->{Redirect})) {
-		$prev = _response($req, $jar, @{delete($hdrs->{Redirect})});
-	}
+	delete($hdrs->{URL});
+	$res->request($req);
 
-	if ($prev) {
-		my $meth = $prev->request->method;
-		my $code = $prev->code;
-		if ($meth ne 'HEAD' && ($code == 301 || $code == 302 || $code == 303)) {
-			$meth = 'GET';
-		}
-		$res->previous($prev);
-		no strict 'refs';
-		$res->request(&{'HTTP::Request::Common::' . $meth}(delete($hdrs->{URL})));
-	}
-	else {
-		delete($hdrs->{URL});
-		$res->request($req);
-	}
 	if (defined($hdrs->{HTTPVersion})) {
 		$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
 	}
@@ -102,9 +110,18 @@ sub _response {
 		$res->content_ref(\$body);
 	}
 
-	$jar->extract_cookies($res);
+	$self->cookie_jar->extract_cookies($res);
+	$res->previous($prev) if $prev;
 
-	return $res;
+	if (grep { $_ == $res->code } (301, 302, 303, 307)) {
+		my $meth = $req->method eq 'HEAD' ? 'HEAD' : 'GET';
+		my $uri  = $hdrs->{location};
+		no strict 'refs';
+		my $req = &{'HTTP::Request::Common::' . $meth}($uri);
+		return $self->_redirect($req, $res, $count // $self->max_redirects, sub { $cb->(@_); });
+	} else {
+		return $cb->($res);
+	}
 }
 
 
