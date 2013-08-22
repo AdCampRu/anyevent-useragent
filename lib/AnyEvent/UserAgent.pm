@@ -11,7 +11,6 @@ use HTTP::Request ();
 use HTTP::Request::Common ();
 use HTTP::Response ();
 
-$AnyEvent::HTTP::MAX_RECURSE = 0;
 
 our $VERSION = '0.01';
 
@@ -56,6 +55,7 @@ sub _req {
 
 	my %opts = (
 		timeout => $self->timeout,
+		recurse => 0,
 		headers => $headers,
 		body    => $req->content,
 	);
