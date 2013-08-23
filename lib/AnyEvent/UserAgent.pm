@@ -191,6 +191,11 @@ methods. These methods will then be invoked by the user agent as requests are
 sent and responses are received. Normally this will be a L<HTTP::Cookies> object
 or some subclass. Default cookie jar is the L<HTTP::Cookies> object.
 
+=head2 max_redirects
+
+Maximum number of redirects the user agent will follow before it gives up. By
+default, the value is 5.
+
 =head2 timeout
 
 The request timeout. See L<C<timeout>|AnyEvent::HTTP/timeout-seconds> in
@@ -206,38 +211,54 @@ L<AnyEvent::HTTP>. Default timeout is 30 seconds.
 Constructor for the user agent. You can pass it either a hash or a hash
 reference with attribute values.
 
+=head2 request
+
+    $ua->request(GET 'http://example.com/', sub { print($_[0]->code) });
+
+This method will dispatch the given request object. Normally this will be an
+instance of the L<HTTP::Request> class, but any object with a similar interface
+will do. The last argument must be a callback that will be called with a
+response object as first argument. Response will be an instance of the
+L<HTTP::Response> class.
+
 =head2 get
 
     $ua->get('http://example.com/', sub { print($_[0]->code) });
 
-This method is a wrapper for the L<C<HTTP::Request::Common::GET()>|HTTP::Request::Common/GET $url>.
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::GET()>|HTTP::Request::Common/GET $url> function.
 The last argument must be a callback.
 
 =head2 head
 
-This method is a wrapper for the L<C<HTTP::Request::Common::HEAD()>|HTTP::Request::Common/HEAD $url>.
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::HEAD()>|HTTP::Request::Common/HEAD $url> function.
 See L<C<get()>|/get>.
 
 =head2 put
 
-This method is a wrapper for the L<C<HTTP::Request::Common::PUT()>|HTTP::Request::Common/PUT $url>.
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::PUT()>|HTTP::Request::Common/PUT $url> function.
 See L<C<get()>|/get>.
 
 =head2 delete
 
-This method is a wrapper for the L<C<HTTP::Request::Common::DELETE()>|HTTP::Request::Common/DELETE $url>.
-See L<C<get()>|/get>.
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::DELETE()>|HTTP::Request::Common/DELETE $url>
+function. See L<C<get()>|/get>.
 
 =head2 post
 
     $ua->post('http://example.com/', [key => 'value'], sub { print($_[0]->code) });
 
-This method is a wrapper for the L<C<HTTP::Request::Common::POST()>|HTTP::Request::Common/POST $url>.
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::POST()>|HTTP::Request::Common/POST $url> function.
 The last argument must be a callback.
 
 =head1 SEE ALSO
 
-L<AnyEvent::HTTP>, L<HTTP::Cookies>, L<HTTP::Request::Common>, L<HTTP::Response>.
+L<AnyEvent::HTTP>, L<HTTP::Cookies>, L<HTTP::Request::Common>, L<HTTP::Request>,
+L<HTTP::Response>.
 
 =head1 SUPPORT
 
