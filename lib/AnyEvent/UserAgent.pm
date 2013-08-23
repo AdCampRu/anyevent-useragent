@@ -98,8 +98,10 @@ sub _response {
 	}
 	$self->cookie_jar->extract_cookies($res);
 
-	if (grep { $_ == $res->code } (301, 302, 303, 307, 308)) {
-		$self->_redirect($req, $res, $count, $cb);
+	my $code = $res->code;
+
+	if ($code == 301 || $code == 302 || $code == 303 || $code == 307 || $code == 308) {
+		$self->_redirect($req, $code, $res, $count, $cb);
 	}
 	else {
 		$cb->($res);
@@ -107,9 +109,9 @@ sub _response {
 }
 
 sub _redirect {
-	my ($self, $req, $prev, $count, $cb) = @_;
+	my ($self, $req, $code, $prev, $count, $cb) = @_;
 
-	unless (defined($count) ? $count : $count = $self->max_redirects) {
+	unless (defined($count) ? $count : ($count = $self->max_redirects)) {
 		$prev->header('client-warning' => 'Redirect loop detected (max_redirects = ' . $self->max_redirects . ')');
 		$cb->($prev);
 		return;
@@ -121,7 +123,7 @@ sub _redirect {
 
 	$req = $req->clone();
 	$req->remove_header('cookie');
-	if (($prev->code == 302 || $prev->code == 303) && !($meth eq 'GET' || $meth eq 'HEAD')) {
+	if (($code == 302 || $code == 303) && !($meth eq 'GET' || $meth eq 'HEAD')) {
 		$req->method('GET');
 		$req->content('');
 		$req->remove_content_headers();
