@@ -70,14 +70,6 @@ sub _request {
 	);
 }
 
-sub _redirect {
-	my ($self, $req, $prev, $count, $cb) = @_;
-
-	$self->_request($req, sub {
-		$self->_response($req, @_, $prev, $count - 1, sub { return $cb->(@_); });
-	});
-}
-
 sub _response {
 	my $cb = pop();
 	my ($self, $req, $body, $hdrs, $prev, $count) = @_;
@@ -106,22 +98,51 @@ sub _response {
 	}
 	$self->cookie_jar->extract_cookies($res);
 
-	if (grep { $_ == $res->code } (301, 302, 303, 307)) {
-		$count //= $self->max_redirects;
-		unless ($count) {
-			return $cb->($res);
-		}
-		else {
-			my $meth = $req->method eq 'HEAD' ? 'HEAD' : 'GET';
-			my $uri  = $hdrs->{location};
-			no strict 'refs';
-			my $req = &{'HTTP::Request::Common::' . $meth}($uri);
-			return $self->_redirect($req, $res, $count, sub { $cb->(@_); });
-		}
+	if (grep { $_ == $res->code } (301, 302, 303, 307, 308)) {
+		$self->_redirect($req, $res, $count, $cb);
 	}
 	else {
-		return $cb->($res);
+		$cb->($res);
 	}
+}
+
+sub _redirect {
+	my ($self, $req, $prev, $count, $cb) = @_;
+
+	unless (defined($count) ? $count : $count = $self->max_redirects) {
+		$prev->header('client-warning' => 'Redirect loop detected (max_redirects = ' . $self->max_redirects . ')');
+		$cb->($prev);
+		return;
+	}
+
+	my $meth  = $req->method;
+	my $proto = $req->uri->scheme;
+	my $uri   = $prev->header('location');
+
+	$req = $req->clone();
+	$req->remove_header('cookie');
+	if (($prev->code == 302 || $prev->code == 303) && !($meth eq 'GET' || $meth eq 'HEAD')) {
+		$req->method('GET');
+		$req->content('');
+		$req->remove_content_headers();
+	}
+	{
+		# Support for relative URL for redirect.
+		# Not correspond to RFC.
+		local $URI::ABS_ALLOW_RELATIVE_SCHEME = 1;
+		my $base = $prev->base;
+		$uri = $HTTP::URI_CLASS->new(defined($uri) ? $uri : '', $base)->abs($base);
+	}
+	$req->uri($uri);
+	if ($proto eq 'https' && $uri->scheme eq 'http') {
+		# Suppress 'Referer' header for HTTPS to HTTP redirect.
+		# RFC 2616, section 15.1.3.
+		$req->remove_header('referer');
+	}
+
+	$self->_request($req, sub {
+		$self->_response($req, @_, $prev, $count - 1, sub { return $cb->(@_); });
+	});
 }
 
 
