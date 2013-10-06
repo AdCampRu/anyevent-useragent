@@ -1,6 +1,6 @@
 ---
 name:     AnyEvent-UserAgent
-version:  0.01
+version:  0.02
 abstract: 'AnyEvent::HTTP OO-wrapper'
 author:
   - 'Denis Ibaev <dionys@cpan.org>'
