@@ -52,7 +52,7 @@ sub _request {
 	unless ($hdrs->user_agent) {
 		$hdrs->user_agent($self->agent);
 	}
-	if (($req->url->scheme // '') =~ /^https?$/ && $url->userinfo && !$hdrs->authorization) {
+	if ($url->can('userinfo') && $url->userinfo && !$hdrs->authorization) {
 		$hdrs->authorization_basic(split(':', $url->userinfo, 2));
 	}
 	$self->cookie_jar->add_cookie_header($req);
