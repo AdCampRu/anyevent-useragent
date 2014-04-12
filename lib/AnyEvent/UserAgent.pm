@@ -12,7 +12,7 @@ use HTTP::Request::Common ();
 use HTTP::Response ();
 
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 has agent         => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
