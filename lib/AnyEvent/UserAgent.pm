@@ -46,14 +46,14 @@ sub _make_request {
 sub _request {
 	my ($self, $req, $cb) = @_;
 
-	my $url  = $req->url;
+	my $uri  = $req->uri;
 	my $hdrs = $req->headers;
 
 	unless ($hdrs->user_agent) {
 		$hdrs->user_agent($self->agent);
 	}
-	if ($url->can('userinfo') && $url->userinfo && !$hdrs->authorization) {
-		$hdrs->authorization_basic(split(':', $url->userinfo, 2));
+	if ($uri->can('userinfo') && $uri->userinfo && !$hdrs->authorization) {
+		$hdrs->authorization_basic(split(':', $uri->userinfo, 2));
 	}
 	$self->cookie_jar->add_cookie_header($req);
 
