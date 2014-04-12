@@ -55,7 +55,9 @@ sub _request {
 	if ($uri->can('userinfo') && $uri->userinfo && !$hdrs->authorization) {
 		$hdrs->authorization_basic(split(':', $uri->userinfo, 2));
 	}
-	$self->cookie_jar->add_cookie_header($req);
+	if ($uri->scheme) {
+		$self->cookie_jar->add_cookie_header($req);
+	}
 
 	my $headers = $req->headers;
 
