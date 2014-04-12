@@ -3,8 +3,6 @@ lib/AnyEvent/UserAgent.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-META.json
-META.yml
 README
 t/00-use.t
 t/01-invalid-url.t
