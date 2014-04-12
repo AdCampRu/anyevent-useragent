@@ -7,7 +7,8 @@ META.json
 META.yml
 README
 t/00-use.t
-t/01-pod.t
-t/02-pod-coverage.t
-t/03-manifest.t
-t/04-changes.t
+t/01-invalid-url.t
+t/90-pod.t
+t/91-pod-coverage.t
+t/92-manifest.t
+t/93-changes.t
