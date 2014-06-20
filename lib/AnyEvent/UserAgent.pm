@@ -234,6 +234,13 @@ will do. The last argument must be a callback that will be called with a
 response object as first argument. Response will be an instance of the
 L<HTTP::Response> class.
 
+This method is a wrapper for the L<C<AnyEvent::HTTP::http_request()>|AnyEvent::HTTP>
+method. So you also can pass parameters for it, e.g.:
+
+    $ua->request(GET 'http://example.com/', want_body_handle => 0, sub { print($_[0]->code) });
+
+Full parameter list see at the L<AnyEvent::HTTP> documentation.
+
 =head2 get
 
     $ua->get('http://example.com/', sub { print($_[0]->code) });
