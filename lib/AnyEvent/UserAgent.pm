@@ -72,6 +72,9 @@ sub _request {
 		body    => $req->content,
 		recurse => 0,
 		timeout => $opts->{timeout},
+		(map { $_ => $opts->{$_} } grep { exists($opts->{$_}) }
+			qw(proxy tls_ctx session on_prepare tcp_connect on_header
+			   on_body want_body_handle persistent keepalive handle_params)),
 		sub {
 			$cb->($opts, @_);
 		}
