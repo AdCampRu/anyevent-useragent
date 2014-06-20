@@ -13,7 +13,7 @@ use HTTP::Response ();
 
 use namespace::clean;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 
 has agent         => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
