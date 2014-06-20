@@ -53,7 +53,6 @@ sub _request {
 	unless ($hdrs->user_agent) {
 		$hdrs->user_agent($self->agent);
 	}
-	delete($hdrs->{'::std_case'});
 
 	if ($uri->can('userinfo') && $uri->userinfo && !$hdrs->authorization) {
 		$hdrs->authorization_basic(split(':', $uri->userinfo, 2));
@@ -69,7 +68,7 @@ sub _request {
 	AnyEvent::HTTP::http_request(
 		$req->method,
 		$req->uri,
-		headers => $hdrs,
+		headers => {map { $_ => $hdrs->header($_) } $hdrs->header_field_names},
 		body    => $req->content,
 		recurse => 0,
 		timeout => $opts->{timeout},
