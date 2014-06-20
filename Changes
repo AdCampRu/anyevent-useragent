@@ -1,5 +1,10 @@
 Revision history for perl module AnyEvent::UserAgent
 
+0.04    2014-06-19
+        - Added support for redefine some options of the user agent for one
+          request only.
+        - Fixed changing the request options during the redirects.
+
 0.03    2014-04-12
         - Fixed processing of invalid URLs (reported by Andrey Khozov).
 

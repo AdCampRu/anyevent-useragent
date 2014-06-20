@@ -21,9 +21,10 @@ has max_redirects => (is => 'rw', default => sub { 5 });
 has timeout       => (is => 'rw', default => sub { 30 });
 
 sub request {
-	my ($self, $req, $cb) = @_;
+	my $cb = pop();
+	my ($self, $req, %opts) = @_;
 
-	$self->_request($req, sub {
+	$self->_request($req, \%opts, sub {
 		$self->_response($req, @_, $cb);
 	});
 }
@@ -44,7 +45,7 @@ sub _make_request {
 }
 
 sub _request {
-	my ($self, $req, $cb) = @_;
+	my ($self, $req, $opts, $cb) = @_;
 
 	my $uri  = $req->uri;
 	my $hdrs = $req->headers;
@@ -52,6 +53,8 @@ sub _request {
 	unless ($hdrs->user_agent) {
 		$hdrs->user_agent($self->agent);
 	}
+	delete($hdrs->{'::std_case'});
+
 	if ($uri->can('userinfo') && $uri->userinfo && !$hdrs->authorization) {
 		$hdrs->authorization_basic(split(':', $uri->userinfo, 2));
 	}
@@ -59,30 +62,26 @@ sub _request {
 		$self->cookie_jar->add_cookie_header($req);
 	}
 
-	my $headers = $req->headers;
-
-	delete($headers->{'::std_case'});
-
-	my %opts = (
-		timeout => $self->timeout,
-		recurse => 0,
-		headers => $headers,
-		body    => $req->content,
-	);
+	for (qw(max_redirects timeout)) {
+		$opts->{$_} = $self->$_() unless exists($opts->{$_});
+	}
 
 	AnyEvent::HTTP::http_request(
 		$req->method,
 		$req->uri,
-		%opts,
+		headers => $hdrs,
+		body    => $req->content,
+		recurse => 0,
+		timeout => $opts->{timeout},
 		sub {
-			$cb->(@_);
+			$cb->($opts, @_);
 		}
 	);
 }
 
 sub _response {
 	my $cb = pop();
-	my ($self, $req, $body, $hdrs, $prev, $count) = @_;
+	my ($self, $req, $opts, $body, $hdrs, $prev, $count) = @_;
 
 	my $res = HTTP::Response->new(delete($hdrs->{Status}), delete($hdrs->{Reason}));
 
@@ -111,7 +110,7 @@ sub _response {
 	my $code = $res->code;
 
 	if ($code == 301 || $code == 302 || $code == 303 || $code == 307 || $code == 308) {
-		$self->_redirect($req, $code, $res, $count, $cb);
+		$self->_redirect($req, $opts, $code, $res, $count, $cb);
 	}
 	else {
 		$cb->($res);
@@ -119,10 +118,10 @@ sub _response {
 }
 
 sub _redirect {
-	my ($self, $req, $code, $prev, $count, $cb) = @_;
+	my ($self, $req, $opts, $code, $prev, $count, $cb) = @_;
 
-	unless (defined($count) ? $count : ($count = $self->max_redirects)) {
-		$prev->header('client-warning' => 'Redirect loop detected (max_redirects = ' . $self->max_redirects . ')');
+	unless (defined($count) ? $count : ($count = $opts->{max_redirects})) {
+		$prev->header('client-warning' => 'Redirect loop detected (max_redirects = ' . $opts->{max_redirects} . ')');
 		$cb->($prev);
 		return;
 	}
@@ -152,7 +151,7 @@ sub _redirect {
 		$req->remove_header('referer');
 	}
 
-	$self->_request($req, sub {
+	$self->_request($req, $opts, sub {
 		$self->_response($req, @_, $prev, $count - 1, sub { return $cb->(@_); });
 	});
 }
