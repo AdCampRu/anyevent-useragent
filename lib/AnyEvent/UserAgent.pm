@@ -11,6 +11,7 @@ use HTTP::Request ();
 use HTTP::Request::Common ();
 use HTTP::Response ();
 
+use namespace::clean;
 
 our $VERSION = '0.03';
 

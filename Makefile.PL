@@ -18,6 +18,7 @@ WriteMakefile(
 		'Test::More'            => 0,
 	},
 	PREREQ_PM      => {
+		'namespace::clean'      => 0,
 		'AnyEvent::HTTP'        => 0,
 		'HTTP::Cookies'         => 0,
 		'HTTP::Message'         => 0,
