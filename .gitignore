@@ -1,11 +1,12 @@
+benchmark/
 blib/
 .build/
 _build/
-cover_db/
-inc/
 Build
 !Build/
 Build.bat
+cover_db/
+inc/
 .last_cover_stats
 Makefile
 Makefile.old

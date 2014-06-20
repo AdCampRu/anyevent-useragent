@@ -3,4 +3,6 @@
 .*\.old$
 ^Makefile$
 ^\.git
+benchmark/
 cpanfile
+MANIFEST.SKIP
