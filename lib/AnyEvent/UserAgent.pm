@@ -106,9 +106,6 @@ sub _response {
 	$res->request($req);
 	$res->previous($prev) if $prev;
 
-	if ($res->message && $res->message eq 'Connection timed out') {
-		$res->message('Inactivity timeout');
-	}
 	delete($hdrs->{URL});
 	if (defined($hdrs->{HTTPVersion})) {
 		$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
@@ -122,6 +119,14 @@ sub _response {
 	}
 	if (keys(%$hdrs)) {
 		$res->header(%$hdrs);
+	}
+	if ($res->code >= 590 && $res->code <= 599 && $res->message) {
+		if ($res->message eq 'Connection timed out') {
+			$res->message('Inactivity timeout');
+		}
+		unless ($res->header('client-warning')) {
+			$res->header('client-warning' => $res->message);
+		}
 	}
 	if (defined($body)) {
 		$res->content_ref(\$body);
