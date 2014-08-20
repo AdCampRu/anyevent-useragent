@@ -111,10 +111,7 @@ sub _response {
 		$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
 	}
 	if (my $cookies = $hdrs->{'set-cookie'}) {
-		local @_ = split(/,(\w+=)/, ',' . $cookies);
-		shift();
-		my @val;
-		push(@val, join('', shift(), shift())) while @_;
+		my @val = split(/,(\w+=)/, ',' . $cookies);
 		$hdrs->{'set-cookie'} = \@val;
 	}
 	if (keys(%$hdrs)) {
