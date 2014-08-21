@@ -112,7 +112,7 @@ sub _response {
 	}
 	if (my $cookies = $hdrs->{'set-cookie'}) {
 		# regex built from reading http://tools.ietf.org/html/rfc6265#section-4.1.1
-		local @_ = split(/,([\w.!"'%\$&*+-^`]+=)/, $cookies);
+		local @_ = split(/,([\w.!"'%\$&*+-^`]+=)/, ',' . $cookies);
 		shift();
 		my @val;
 		push(@val, join('', shift(), shift())) while @_;
