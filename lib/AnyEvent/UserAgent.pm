@@ -111,7 +111,8 @@ sub _response {
 		$res->protocol('HTTP/' . delete($hdrs->{HTTPVersion}));
 	}
 	if (my $cookies = $hdrs->{'set-cookie'}) {
-		local @_ = split(/,(\w+=)/, ',' . $cookies);
+		# regex built from reading http://tools.ietf.org/html/rfc6265#section-4.1.1
+		local @_ = split(/,([\w.!"'%\$&*+-^`]+=)/, ',' . $cookies);
 		shift();
 		my @val;
 		push(@val, join('', shift(), shift())) while @_;
