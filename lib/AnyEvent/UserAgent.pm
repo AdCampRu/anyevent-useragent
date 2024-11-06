@@ -13,7 +13,7 @@ use HTTP::Response ();
 
 use namespace::clean;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 
 has agent              => (is => 'rw', default => sub { $AnyEvent::HTTP::USERAGENT . ' AnyEvent-UserAgent/' . $VERSION });
@@ -82,7 +82,7 @@ sub _request {
 	$grd = AnyEvent::HTTP::http_request(
 		$req->method,
 		$req->uri,
-		headers => {map { $_ => $hdrs->header($_) } $hdrs->header_field_names},
+		headers => {map { $_ => scalar($hdrs->header($_)) } $hdrs->header_field_names},
 		body    => $req->content,
 		recurse => 0,
 		timeout => $opts->{inactivity_timeout},
