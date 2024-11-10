@@ -1,5 +1,9 @@
 Revision history for perl module AnyEvent::UserAgent
 
+0.09    2024-11-10
+        - Add more class options that can be passed to all requests (#6, Mathias
+          Kende).
+
 0.08    2024-11-08
         - Support sending multiple values for a single header (#5, Mathias
           Kende).

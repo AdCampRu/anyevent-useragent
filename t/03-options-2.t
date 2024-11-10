@@ -26,18 +26,27 @@ use HTTP::Request::Common ();
 	};
 }
 
-my $ua = AnyEvent::UserAgent->new;
-my $cv = AE::cv;
+{
+	my $ua = AnyEvent::UserAgent->new;
+	my $cv = AE::cv;
 
-$ua->request(
-	HTTP::Request::Common::GET('http://example.com/'),
-	foo        => 'bar',
-	persistent => 1,
-	sub {
-		$cv->send();
-	}
-);
-$cv->recv();
+	$ua->request(
+		HTTP::Request::Common::GET('http://example.com/'),
+		foo        => 'bar',
+		persistent => 1,
+		sub {
+			$cv->send();
+		}
+	);
+	$cv->recv();
+}
 
+{
+	my $ua = AnyEvent::UserAgent->new(persistent => 1);
+	my $cv = AE::cv;
+
+	$ua->get('http://example.com/', sub { $cv->send() });
+	$cv->recv();
+}
 
 done_testing;
