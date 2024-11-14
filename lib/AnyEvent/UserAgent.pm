@@ -49,6 +49,8 @@ sub head   { _do_request(\&HTTP::Request::Common::HEAD   => @_) }
 sub put    { _do_request(\&HTTP::Request::Common::PUT    => @_) }
 sub delete { _do_request(\&HTTP::Request::Common::DELETE => @_) }
 sub post   { _do_request(\&HTTP::Request::Common::POST   => @_) }
+sub patch   { _do_request(\&HTTP::Request::Common::PATCH   => @_) }
+sub options   { _do_request(\&HTTP::Request::Common::OPTIONS   => @_) }
 
 sub _do_request {
 	my $cb   = pop();
@@ -322,6 +324,18 @@ function. See L<C<get()>|/get>.
 This method is a wrapper for the L<C<request()>|/request> method and the
 L<C<HTTP::Request::Common::POST()>|HTTP::Request::Common/POST $url> function.
 The last argument must be a callback.
+
+=head2 patch
+
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::PATCH()>|HTTP::Request::Common/PATCH $url> function.
+The last argument must be a callback.
+
+=head2 options
+
+This method is a wrapper for the L<C<request()>|/request> method and the
+L<C<HTTP::Request::Common::OPTIONS()>|HTTP::Request::Common/OPTIONS $url>
+function. The last argument must be a callback.
 
 =head1 LIMITATIONS
 
