@@ -1,6 +1,6 @@
 Revision history for perl module AnyEvent::UserAgent
 
-0.09    2024-11-10
+0.09    2024-11-15
         - Add more class options that can be passed to all requests (#6, Mathias
           Kende).
         - Support sending HTTP PATCH and OPTIONS requests (#6, Mathias Kende).
